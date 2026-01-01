@@ -21,7 +21,6 @@ def load_dax_data():
 
     df = yf.download("^GDAXI", interval="1h", period="7d", progress=False)
 
-    # Robust: MultiIndex / Tuple-Spalten entfernen (Ticker-Ebene loswerden)
     if isinstance(df.columns, pd.MultiIndex):
         df.columns = df.columns.get_level_values(0)
     df.columns = [c[0] if isinstance(c, tuple) else c for c in df.columns]
@@ -31,8 +30,6 @@ def load_dax_data():
         return None
 
     df.reset_index(inplace=True)
-
-    # Nach reset_index erneut absichern
     df.columns = [c[0] if isinstance(c, tuple) else c for c in df.columns]
 
     df.rename(columns={
@@ -41,7 +38,7 @@ def load_dax_data():
         "Open": "open",
         "High": "high",
         "Low": "low",
-        "Close": "close",
+        "Close": "close"
     }, inplace=True)
 
     df = df[["time", "open", "high", "low", "close"]].copy()
@@ -49,6 +46,7 @@ def load_dax_data():
 
     print(f"DATA: loaded {len(df)} candles, last time = {df.iloc[-1]['time']}", flush=True)
     return df
+
 
 
 if df.empty:
@@ -280,6 +278,7 @@ def load_dax_data():
     while True:
         print("HEARTBEAT: alive", flush=True)
         time.sleep(60)
+
 
 
 
