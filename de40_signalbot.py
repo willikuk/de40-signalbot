@@ -88,7 +88,6 @@ def update_csv():
 
     df.reset_index(inplace=True)
 
-    # yfinance kann je nach Version 'Datetime' oder 'Date' liefern
     if "Datetime" in df.columns:
         df.rename(columns={"Datetime": "time"}, inplace=True)
     elif "Date" in df.columns:
@@ -105,6 +104,7 @@ def update_csv():
 
     print(f"DATA: loaded {len(df)} candles, last = {df.iloc[-1]['time']}", flush=True)
     return df
+
 
 
 def ema(series, n):
@@ -214,6 +214,7 @@ def load_dax_data():
     while True:
         print("HEARTBEAT: alive", flush=True)
         time.sleep(60)
+
 
 
 
