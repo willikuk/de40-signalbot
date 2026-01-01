@@ -19,12 +19,37 @@ from datetime import datetime
 def load_dax_data():
     print("DATA: loading DAX data from Yahoo Finance", flush=True)
 
-  df = yf.download("^GDAXI", interval="1h", period="7d", progress=False)
+    df = yf.download("^GDAXI", interval="1h", period="7d", progress=False)
 
-# Robust: MultiIndex / Tuple-Spalten entfernen (Ticker-Ebene loswerden)
-if isinstance(df.columns, pd.MultiIndex):
-    df.columns = df.columns.get_level_values(0)
-df.columns = [c[0] if isinstance(c, tuple) else c for c in df.columns]
+    # Robust: MultiIndex / Tuple-Spalten entfernen (Ticker-Ebene loswerden)
+    if isinstance(df.columns, pd.MultiIndex):
+        df.columns = df.columns.get_level_values(0)
+    df.columns = [c[0] if isinstance(c, tuple) else c for c in df.columns]
+
+    if df.empty:
+        print("DATA: no data received", flush=True)
+        return None
+
+    df.reset_index(inplace=True)
+
+    # Nach reset_index erneut absichern
+    df.columns = [c[0] if isinstance(c, tuple) else c for c in df.columns]
+
+    df.rename(columns={
+        "Datetime": "time",
+        "Date": "time",
+        "Open": "open",
+        "High": "high",
+        "Low": "low",
+        "Close": "close",
+    }, inplace=True)
+
+    df = df[["time", "open", "high", "low", "close"]].copy()
+    df = df.dropna().sort_values("time").reset_index(drop=True)
+
+    print(f"DATA: loaded {len(df)} candles, last time = {df.iloc[-1]['time']}", flush=True)
+    return df
+
 
 if df.empty:
     print("DATA: no data received", flush=True)
@@ -255,6 +280,7 @@ def load_dax_data():
     while True:
         print("HEARTBEAT: alive", flush=True)
         time.sleep(60)
+
 
 
 
