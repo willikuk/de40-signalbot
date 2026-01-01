@@ -6,17 +6,16 @@ import pandas as pd
 from datetime import datetime, timezone
 from dotenv import load_dotenv
 
-BASE_DIR = os.path.dirname(__file__)
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 ENV_PATH = os.path.join(BASE_DIR, ".env")
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
-DATA_DIR = os.getenv("DATA_DIR", BASE_DIR)  # default: Projektordner
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+DATA_DIR = os.getenv("DATA_DIR", BASE_DIR)
+STATE_PATH = os.path.join(DATA_DIR, "state_de40.json")
 
-DATA_DIR = os.getenv("DATA_DIR", BASE_DIR)  # default: Projektordner
 import yfinance as yf
 import pandas as pd
 from datetime import datetime
+
 
 def load_dax_data():
     print("DATA: loading DAX data from Yahoo Finance", flush=True)
@@ -243,6 +242,7 @@ def load_dax_data():
     while True:
         print("HEARTBEAT: alive", flush=True)
         time.sleep(60)
+
 
 
 
