@@ -170,6 +170,35 @@ if __name__ == "__main__":
     import os
     import time
 
+    # Startmeldung an Telegram
+    try:
+        requests.post(
+            f"https://api.telegram.org/bot{os.getenv('TELEGRAM_BOT_TOKEN')}/sendMessage",
+            data={
+                "chat_id": os.getenv("TELEGRAM_CHAT_ID"),
+                "text": "Render: Bot gestartet und läuft."
+            },
+            timeout=30
+        )
+        print("BOOT: startup message sent", flush=True)
+    except Exception as e:
+        print("BOOT: startup message failed:", e, flush=True)
+
+    # >>> HIER TEST FÜR YAHOO FINANCE <<<
+    try:
+        df_test = update_csv()
+        print(f"TEST: update_csv rows = {len(df_test)}", flush=True)
+    except Exception as e:
+        print("TEST: update_csv failed:", e, flush=True)
+
+    main()
+
+    # Worker am Leben halten
+    while True:
+        print("HEARTBEAT: alive", flush=True)
+        time.sleep(60)
+
+
     # Testnachricht beim Start
     try:
         requests.post(
@@ -214,6 +243,7 @@ def load_dax_data():
     while True:
         print("HEARTBEAT: alive", flush=True)
         time.sleep(60)
+
 
 
 
