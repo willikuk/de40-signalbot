@@ -16,15 +16,20 @@ import yfinance as yf
 import pandas as pd
 from datetime import datetime
 
-
 def load_dax_data():
     print("DATA: loading DAX data from Yahoo Finance", flush=True)
 
-    df = yf.download("^GDAXI", interval="1h", period="5d", progress=False)
+    df = yf.download("^GDAXI", interval="1h", period="7d", progress=False)
+
+    # Fix: yfinance kann MultiIndex-Spalten liefern (z. B. ('Close','^GDAXI'))
+    if isinstance(df.columns, pd.MultiIndex):
+        df.columns = df.columns.get_level_values(0)
 
     if df.empty:
         print("DATA: no data received", flush=True)
         return None
+
+
 
     df.reset_index(inplace=True)
     df.rename(columns={
@@ -242,6 +247,7 @@ def load_dax_data():
     while True:
         print("HEARTBEAT: alive", flush=True)
         time.sleep(60)
+
 
 
 
