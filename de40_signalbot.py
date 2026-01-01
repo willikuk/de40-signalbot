@@ -14,13 +14,34 @@ DATA_DIR = os.getenv("DATA_DIR", BASE_DIR)  # default: Projektordner
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 DATA_DIR = os.getenv("DATA_DIR", BASE_DIR)  # default: Projektordner
-CSV_PATH = os.path.join(DATA_DIR, "DAX_H1.csv")
-STATE_PATH = os.path.join(DATA_DIR, "state_de40.json")
+import yfinance as yf
+import pandas as pd
+from datetime import datetime
+
+def load_dax_data():
+    print("DATA: loading DAX data from Yahoo Finance", flush=True)
+
+    df = yf.download("^GDAXI", interval="1h", period="5d", progress=False)
+
+    if df.empty:
+        print("DATA: no data received", flush=True)
+        return None
+
+    df.reset_index(inplace=True)
+    df.rename(columns={
+        "Datetime": "time",
+        "Open": "open",
+        "High": "high",
+        "Low": "low",
+        "Close": "close"
+    }, inplace=True)
+
+    print(f"DATA: received {len(df)} candles, last time = {df.iloc[-1]['time']}", flush=True)
+    return df
+
 import sys
 print("BOOT: started", flush=True)
 print("BOOT: python", sys.version, flush=True)
-print("BOOT: CSV_PATH =", CSV_PATH if "CSV_PATH" in globals() else "not set yet", flush=True)
-print("BOOT: STATE_PATH =", STATE_PATH if "STATE_PATH" in globals() else "not set yet", flush=True)
 print("BOOT: has TELEGRAM_BOT_TOKEN =", bool(os.getenv("TELEGRAM_BOT_TOKEN")), flush=True)
 print("BOOT: has TELEGRAM_CHAT_ID =", bool(os.getenv("TELEGRAM_CHAT_ID")), flush=True)
 
@@ -53,12 +74,38 @@ def fetch_data():
 
 
 def update_csv():
-    df = fetch_data()
-    if os.path.exists(CSV_PATH):
-        old = pd.read_csv(CSV_PATH, parse_dates=["time"])
-        df = pd.concat([old, df]).drop_duplicates(subset=["time"]).sort_values("time")
-    df.to_csv(CSV_PATH, index=False)
+    """
+    Lädt die letzten H1-Daten für den DAX (^GDAXI) direkt von Yahoo Finance
+    und gibt sie als DataFrame zurück.
+    """
+    print("DATA: loading DAX H1 from Yahoo Finance", flush=True)
+
+    df = yf.download("^GDAXI", interval="1h", period="7d", progress=False)
+
+    if df.empty:
+        print("DATA: no data received", flush=True)
+        return pd.DataFrame(columns=["time", "open", "high", "low", "close"])
+
+    df.reset_index(inplace=True)
+
+    # yfinance kann je nach Version 'Datetime' oder 'Date' liefern
+    if "Datetime" in df.columns:
+        df.rename(columns={"Datetime": "time"}, inplace=True)
+    elif "Date" in df.columns:
+        df.rename(columns={"Date": "time"}, inplace=True)
+
+    df.rename(columns={
+        "Open": "open",
+        "High": "high",
+        "Low": "low",
+        "Close": "close"
+    }, inplace=True)
+
+    df = df[["time", "open", "high", "low", "close"]].dropna().sort_values("time")
+
+    print(f"DATA: loaded {len(df)} candles, last = {df.iloc[-1]['time']}", flush=True)
     return df
+
 
 def ema(series, n):
     return series.ewm(span=n).mean()
@@ -167,6 +214,7 @@ def load_dax_data():
     while True:
         print("HEARTBEAT: alive", flush=True)
         time.sleep(60)
+
 
 
 
