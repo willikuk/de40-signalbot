@@ -16,6 +16,13 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DATA_DIR = os.getenv("DATA_DIR", BASE_DIR)  # default: Projektordner
 CSV_PATH = os.path.join(DATA_DIR, "DAX_H1.csv")
 STATE_PATH = os.path.join(DATA_DIR, "state_de40.json")
+import sys
+print("BOOT: started", flush=True)
+print("BOOT: python", sys.version, flush=True)
+print("BOOT: CSV_PATH =", CSV_PATH if "CSV_PATH" in globals() else "not set yet", flush=True)
+print("BOOT: STATE_PATH =", STATE_PATH if "STATE_PATH" in globals() else "not set yet", flush=True)
+print("BOOT: has TELEGRAM_BOT_TOKEN =", bool(os.getenv("TELEGRAM_BOT_TOKEN")), flush=True)
+print("BOOT: has TELEGRAM_CHAT_ID =", bool(os.getenv("TELEGRAM_CHAT_ID")), flush=True)
 
 
 
@@ -114,6 +121,7 @@ if __name__ == "__main__":
     main()
     while True:
         time.sleep(60)
+
 
 
 
