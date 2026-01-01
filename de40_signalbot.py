@@ -117,10 +117,33 @@ def main():
 
         time.sleep(600)
 
+
 if __name__ == "__main__":
+    import requests
+    import os
+    import time
+
+    # Testnachricht beim Start
+    try:
+        requests.post(
+            f"https://api.telegram.org/bot{os.getenv('TELEGRAM_BOT_TOKEN')}/sendMessage",
+            data={
+                "chat_id": os.getenv("TELEGRAM_CHAT_ID"),
+                "text": "Render: Bot gestartet und läuft."
+            },
+            timeout=30
+        )
+        print("BOOT: startup message sent", flush=True)
+    except Exception as e:
+        print("BOOT: startup message failed:", e, flush=True)
+
     main()
+
+    # Keep worker alive + Heartbeat
     while True:
+        print("HEARTBEAT: alive", flush=True)
         time.sleep(60)
+
 
 
 
