@@ -8,8 +8,12 @@ from dotenv import load_dotenv
 
 BASE_DIR = os.path.dirname(__file__)
 ENV_PATH = os.path.join(BASE_DIR, ".env")
-CSV_PATH = r"I:\DAX_SIGNALS\DAX_H1.csv"
-STATE_PATH = r"I:\DAX_SIGNALS\state_de40.json"
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+DATA_DIR = os.getenv("DATA_DIR", BASE_DIR)  # default: Projektordner
+CSV_PATH = os.path.join(DATA_DIR, "DAX_H1.csv")
+STATE_PATH = os.path.join(DATA_DIR, "state_de40.json")
+
 
 YAHOO_URL = "https://query1.finance.yahoo.com/v8/finance/chart/%5EGDAXI"
 
@@ -104,3 +108,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
