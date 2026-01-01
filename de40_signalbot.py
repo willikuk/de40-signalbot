@@ -136,6 +136,30 @@ if __name__ == "__main__":
         print("BOOT: startup message sent", flush=True)
     except Exception as e:
         print("BOOT: startup message failed:", e, flush=True)
+import yfinance as yf
+import pandas as pd
+from datetime import datetime
+
+def load_dax_data():
+    print("DATA: loading DAX data from Yahoo Finance", flush=True)
+
+    df = yf.download("^GDAXI", interval="1h", period="5d", progress=False)
+
+    if df.empty:
+        print("DATA: no data received", flush=True)
+        return None
+
+    df.reset_index(inplace=True)
+    df.rename(columns={
+        "Datetime": "time",
+        "Open": "open",
+        "High": "high",
+        "Low": "low",
+        "Close": "close"
+    }, inplace=True)
+
+    print(f"DATA: received {len(df)} candles, last time = {df.iloc[-1]['time']}", flush=True)
+    return df
 
     main()
 
@@ -143,6 +167,7 @@ if __name__ == "__main__":
     while True:
         print("HEARTBEAT: alive", flush=True)
         time.sleep(60)
+
 
 
 
